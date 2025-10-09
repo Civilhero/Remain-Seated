@@ -1,0 +1,91 @@
+{
+    "version": 1,
+    "name": "WheelchairControls",
+    "maps": [
+        {
+            "name": "LeftWheel",
+            "id": "371222fd-6a6f-4bb3-a206-f961fb007725",
+            "actions": [
+                {
+                    "name": "MoveRight",
+                    "type": "Button",
+                    "id": "a964ad45-070b-49d9-bb0c-7b7a0cb6059f",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "669e09b1-0c29-4a2b-8e57-eb5637a46872",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveRight",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "RightWheel",
+            "id": "3ecbcb08-e368-42cb-9ca6-5d738cd4a96c",
+            "actions": [
+                {
+                    "name": "MoveLeft",
+                    "type": "Button",
+                    "id": "89ba0665-be3d-4ae0-b31a-1007d343d5ac",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ed3c3f91-b855-4cc4-92f5-25e56227cec6",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Scroll",
+            "id": "cb58ffab-e9fb-4f1b-947f-2b34af835565",
+            "actions": [
+                {
+                    "name": "PushChair",
+                    "type": "Value",
+                    "id": "fa473c71-41f1-4d25-8116-11a9ec8530e7",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ff8eb4c4-b95f-4ce9-a8c4-5c6fc87e01fb",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PushChair",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
