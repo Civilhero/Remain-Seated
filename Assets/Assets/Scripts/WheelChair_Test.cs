@@ -7,6 +7,7 @@ public class WheelChair_Test : MonoBehaviour
     public InputActionReference rightWheelAction;
     public InputActionReference scrollAction;
     public InputActionReference cameraAction;
+    public InputActionReference interactAction;
 
     [Header("Movement Settings")]
     public float wheelForce = 200f;
@@ -31,9 +32,17 @@ public class WheelChair_Test : MonoBehaviour
     [SerializeField] private float maxVertical = 30f;
     [SerializeField] private float maxHorizontal = 60f;
 
-    private float baseYaw;
-    private float basePitch;
+    private float baseYaw; // used for initial camera alignment
+    private float basePitch; // used for initial camera alignment
     public Camera mainCamera;
+    
+    [Header("Highlight Settings")]
+    public Material highlightMaterial;   // assign in Inspector
+    private MeshRenderer lastHighlightedRenderer;
+    private Material[] originalMaterials;
+    Canvas lastCanvas;
+    public Canvas interactionCanvas;
+    
 
     private void Awake()
     {
@@ -42,8 +51,11 @@ public class WheelChair_Test : MonoBehaviour
 
     private void Start()
     {
+        // not used yet but will be when camera and player interaction is fully implemented so camera does not jump on start
         baseYaw = transform.eulerAngles.y;
         basePitch = transform.eulerAngles.x;
+        
+        interactionCanvas.gameObject.SetActive(false); // set interaction canvas to inactive at start
     }
 
     private void OnEnable()
@@ -52,6 +64,8 @@ public class WheelChair_Test : MonoBehaviour
         if (rightWheelAction) rightWheelAction.action.Enable();
         if (scrollAction) scrollAction.action.Enable();
         if (cameraAction) cameraAction.action.Enable();
+        
+        if(interactAction) interactAction.action.Enable();
 
         if (leftWheelAction)
         {
@@ -67,6 +81,7 @@ public class WheelChair_Test : MonoBehaviour
         {
             scrollAction.action.performed += OnScroll;
         }
+        
 
         rb.linearDamping = 1.5f;
         rb.angularDamping = 2f;
@@ -96,17 +111,16 @@ public class WheelChair_Test : MonoBehaviour
         {
             cameraAction.action.Disable();
         }
+        
+        if(interactAction) {interactAction.action.Disable(); }
+        
     }
 
     private void Update()
     {
         HandleCameraLook();
         FollowCameraToChair();
-    }
-
-    private void FixedUpdate()
-    {
-        CameraDetection();
+        CameraDetection(); // would like to handel in fixed update but player interactions will not work correctly then
     }
 
     // ---------------- Movement Logic ----------------
@@ -180,12 +194,76 @@ public class WheelChair_Test : MonoBehaviour
 
         if (Physics.Raycast(mainCamera.transform.position, fwd, out RaycastHit hit, 100f))
         {
-            Debug.Log("Hit " + hit.collider.name);
             Debug.DrawRay(mainCamera.transform.position, fwd * hit.distance, Color.red);
+
+            Interactable interactable = hit.collider.GetComponent<Interactable>();
+            MeshRenderer meshRenderer = hit.collider.GetComponent<MeshRenderer>();
+            Canvas canvas = hit.collider.GetComponent<Canvas>();
+
+            if (meshRenderer && interactable)
+            {
+                if (meshRenderer != lastHighlightedRenderer)
+                {
+                    // Remove outline from previous
+                    if (lastHighlightedRenderer != null)
+                    {
+                        RemoveOutline(lastHighlightedRenderer);
+                    }
+
+                    // Add outline to new
+                    AddOutline(meshRenderer);
+                    lastHighlightedRenderer = meshRenderer;
+                    
+                    // Enable the new interactable's canvas
+                    if (interactable)
+                    {
+                        interactionCanvas.gameObject.SetActive(true);
+                    }
+                }
+            }
+
+            if (interactable && interactAction.action.WasPressedThisFrame())
+            {
+                Debug.DrawRay(mainCamera.transform.position, fwd * 10f, Color.blue);
+                Debug.Log("Interacting with: " + hit.collider.name);
+                interactable.Interact();
+            }
         }
         else
         {
             Debug.DrawRay(mainCamera.transform.position, fwd * 10f, Color.green);
+            if (lastHighlightedRenderer != null)
+            {
+                RemoveOutline(lastHighlightedRenderer);
+                lastHighlightedRenderer = null;
+                
+            }
+            
+            interactionCanvas.gameObject.SetActive(false);
+            
+        }
+    }
+
+    // Add outline material temporarily
+    private void AddOutline(MeshRenderer renderer)
+    {
+        var mats = renderer.sharedMaterials;
+        var newMats = new Material[mats.Length + 1];
+        mats.CopyTo(newMats, 0);
+        newMats[mats.Length] = highlightMaterial;
+        renderer.materials = newMats;
+    }
+
+    // Remove outline material
+    private void RemoveOutline(MeshRenderer renderer)
+    {
+        var mats = renderer.sharedMaterials;
+        if (mats.Length > 1 && mats[mats.Length - 1] == highlightMaterial)
+        {
+            var newMats = new Material[mats.Length - 1];
+            for (int i = 0; i < newMats.Length; i++)
+                newMats[i] = mats[i];
+            renderer.materials = newMats;
         }
     }
 }
